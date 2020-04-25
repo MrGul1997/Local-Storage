@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Save in localStorage</title>
+    <style>
+
+        body{
+            background-color: rgb(201, 121, 177);
+        }
+        #formOne{
+            width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        input{
+            width: 100%;
+            height: 40px;
+            padding-left: 10px;
+            margin-top: 10px;
+            border-radius: 10px;
+            outline: none;
+        }
+        textarea{
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            padding-left: 10px;
+            outline: none;
+        }
+        button{
+            outline: none;
+            padding: 10px;
+            background: dodgerblue;
+            color: white;
+            border-radius: 10px;
+            width: 100px;
+            cursor: pointer;
+            border: none;
+            margin-left: 10px;
+        }
+        button:focus{
+            outline: none;
+        }
+        #btn-group{
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            margin-top: 20px;
+        }
+        .list{
+            margin: 40px 0px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-content: center;
+        }
+        .list-item{
+            width: 150px;
+            box-shadow: 0px 0px 2px 0px black;
+            padding: 20px;
+            text-align: justify;
+            margin-bottom: 20px;
+        }
+
+        .title{
+            background-color: dodgerblue;
+            color: white;
+            text-align: center;
+            padding: 10px 0px;
+            font-weight: bolder;
+        }
+        .subject{
+            font-weight: bolder;
+            padding: 10px 0px;
+        }
+
+    </style>
+</head>
+<body>
+    <form id="formOne">
+        <div>
+            <input type="text" name="name" id="" placeholder="Name">
+        </div>
+        <div>
+            <input type="text" name="subject" id="" placeholder="Subject">
+        </div>
+        <div>
+            <textarea name="message" placeholder="Message" id="" cols="21" rows="10"></textarea>
+        </div>
+     <div id="btn-group">
+         <button type="button" onclick="saveToLocalStorage()">Save</button>
+         <button type="button" onclick="resetLocalStorage()">Reset</button>
+     </div>
+     <div>
+         <input type="text" oxnchange="" name="search" oninput="doSearch(event)" placeholder="Enter something to search....." id="">
+     </div>
+     <div class="list"></div>
+    </form>
+    <script>
+        function saveToLocalStorage(){
+            var name=document.forms["formOne"]["name"].value;
+            var subject=document.forms["formOne"]["subject"].value;
+            var message=document.forms["formOne"]["message"].value;
+            if(name && subject && message){
+                console.log(name,subject,message);
+                let formData={
+                    name,
+                    subject,
+                    message
+                    };
+                    let formDataList=localStorage.getItem("formDataList");
+                    if(formDataList){
+                        formDataList=JSON.parse(formDataList);
+                        formDataList.push(formData);
+                        localStorage.setItem("formDataList",JSON.stringify(formDataList));
+                        clearForm();
+                        alert("Saved");
+                        renderToBody();
+                    }
+                    else{localStorage.setItem("formDataList",JSON.stringify([formData]));
+                    clearForm();
+                    alert("Saved");
+                    renderToBody();
+                    }
+                }
+                else {
+                    alert("Fill all Fields.");
+                }
+            };
+
+        function renderToBody(){
+            let list=document.getElementsByClassName("list")[0];
+            let formDataList=localStorage.getItem("formDataList");
+            if(formDataList){
+                formDataList=JSON.parse(formDataList);
+                let listHtml="";
+                formDataList.forEach(listItem=>{
+                    listHtml+=`<div class="list-item" graggable="true">
+                    <div class="title">
+                    ${listItem.name}
+                    </div>
+                    <div class="subject">
+                    ${listItem.subject}</div>
+                    <div class="message">
+                    ${listItem.message}</div></div>`
+                });
+
+                list.innerHTML=listHtml;
+            }else{
+                list.innerHTML=`<h1 style="text-align:center;padding:20px 0px">No Items Found.</h1>`
+            }
+        }
+            renderToBody();
+            
+        function doSearch(e){
+            let query=e.target.value;
+            let formDataList=localStorage.getItem("formDataList");
+            if(!formDataList){
+                return false;
+            }else{
+                formDataList=JSON.parse(formDataList);
+                let listItem=formDataList.filter(listItem=>{
+                    return listItem.name.includes(query);
+                });
+                let listHtml="";
+                console.log(listItem);
+                if(listItem.length){
+                    listItem.forEach(listItem=>{
+                        listHtml+=`<div class="list-item" graggable="true">
+                        <div class="title">
+                        ${listItem.name}
+                        </div>
+
+                        <div class="subject">
+                        ${listItem.subject}
+                        </div>
+
+                        <div class="message">
+                        ${listItem.message}
+                        </div>
+                        </div>`;
+                    });
+                    document.getElementsByClassName("list")[0].innerHTML=listHtml;
+                }else{
+                    document.getElementsByClassName("list")[0].innerHTML=`<h1 style="text-align=center;padding:20px 0px;">No Items Found.</h1>`;
+                }
+            }
+        }
+
+        function clearForm(){
+            document.forms["formOne"]["name"].value="";
+            document.forms["formOne"]["subject"].value="";
+            document.forms["formOne"]["message"].value="";
+        }
+        
+        function resetLocalStorage(){
+            let formDataList=localStorage.getItem("formDataList");
+            if(formDataList){
+                localStorage.removeItem("formDataList");
+                alert("All items are removed");
+                renderToBody();
+            }
+            else{
+                alert("No items Found.")
+            }
+        }
+    </script>
+</body>
+
+</html>
